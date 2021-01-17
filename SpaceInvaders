@@ -1,0 +1,106 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jan  7 09:46:59 2021
+
+@author: louis
+"""
+
+from tkinter import *
+import math,random
+
+
+def deplacement():
+    global X,Y,dX,dY,Largeur,Hauteur
+    if X-TailleAlien/2+dX<0:
+        X=TailleAlien
+        dX*=-1
+        Y+=TailleAlien
+    if X-TailleAlien/2+dX>Largeur:
+        X=Largeur-TailleAlien
+        dX*=-1
+        Y+=TailleAlien
+    X+=dX
+    Y+=dY
+    Canevas.coords(Alien,X-TailleAlien/2,Y-TailleAlien/2)
+    fenetre.after(50,deplacement)
+    
+def Tir():
+    global X,Y,Laser,Larg,Long,touche
+    Canevas.unbind('1')
+    Long=20
+    Larg=5
+    Y-=10
+    Canevas.coords(Laser,X-Larg,Y-Long)
+    if Y<0:
+        Canevas.bind('1',Clavier)
+        Canevas.delete(Laser)
+    else:
+        fenetre.after(50,Tir)
+        
+def Laser():
+    global PosX,PosY
+    Long=20
+    Larg=5
+    X=PosX
+    Y=PosY
+    Laser=Canevas.create_rectangle(X-Larg,Y-Larg,X+Larg,Y+Larg,fill='red')
+    Tir()
+    
+def Clavier(event):
+    global PosX,PosY
+    touche=event.keysym
+    if touche=='d' : 
+        PosX+=20
+    if touche=='q':
+        posX-=20
+    if touche=='1':
+        Laser()
+    Canevas.coords(Vaisseau,PosX,PosY)
+
+
+fenetre=Tk()
+fenetre.title('SpaceInvaders')
+
+Largeur=880
+Hauteur=880
+Canevas=Canvas(fenetre, height=Hauteur, width=Largeur,bg='white')
+
+TailleAlien=48
+ImageAlien=PhotoImage(master=fenetre,file='InvaderA1.png')
+Alien=Canevas.create_image(0,0,image=ImageAlien)
+
+posX=440
+posY=880
+ImageVaisseau=PhotoImage(master=fenetre,file='Ship.png')
+Vaisseau=Canevas.create_image(posX,posY,image=ImageVaisseau)
+Canevas.focus_set()
+Canevas.bind('q',Clavier)
+Canevas.bind('d',Clavier)
+Canevas.bind('1',Clavier)
+
+X=0
+Y=0
+dX=10
+dY=0
+Canevas.move(Alien,dX,dY)
+
+
+BoutonJouer=Button(fenetre,text='Jouer')
+BoutonQuitter=Button(fenetre,text='Quitter',command=fenetre.destroy)
+
+x=StringVar()
+#x.set(score())
+LabelScore=Label(fenetre,textvariable=x,fg='black',bg='white')
+
+y=StringVar()
+#y.set(vies())
+LabelVies=Label(fenetre,textvariable=y,fg='black',bg='white')
+
+LabelScore.grid(row=1,column=1,sticky=W)
+LabelVies.grid(row=1,column=2,sticky=E)
+Canevas.grid(row=2,column=1,rowspan=2)
+BoutonJouer.grid(row=2,column=2)
+BoutonQuitter.grid(row=3,column=2)
+
+deplacement()
+fenetre.mainloop()
